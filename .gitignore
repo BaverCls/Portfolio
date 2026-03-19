@@ -1,0 +1,11 @@
+# Çevre Değişkenleri ve Şifreler 
+.env
+
+# Python Önbellek Dosyaları
+__pycache__/
+*.pyc
+
+# Sanal Ortam (Virtual Environment)
+.venv/
+venv/
+env/
