@@ -7,6 +7,7 @@ class ProjectCreate(BaseModel):
     description: Optional[str] = None
     tech_stack: Optional[str] = None
     github_url: Optional[str] = None
+    image_url: Optional[str] = None
 
 # 2. Veritabanından veriyi okuyup Frontend'e yollarken kullanacağımız şema
 # ProjectCreate'teki tüm alanları miras alır, üstüne veritabanından gelen id yi ekler.

@@ -12,3 +12,4 @@ class Project(Base):
     description = Column(Text, nullable=True)
     tech_stack = Column(String(200), nullable=True)
     github_url = Column(String(255), nullable=True)
+    image_url = Column(String(500), nullable=True)

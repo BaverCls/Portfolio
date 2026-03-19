@@ -9,3 +9,8 @@ __pycache__/
 .venv/
 venv/
 env/
+
+# Frontend (Node & React)
+node_modules/
+dist/
+.eslintcache
