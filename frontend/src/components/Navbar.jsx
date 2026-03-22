@@ -7,9 +7,27 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Projeler', href: '#projects' },
-    { name: 'Hakkımda', href: '#contact' },
+    { name: 'Hakkımda', href: '#experience' },
     { name: 'İletişim', href: '#contact' },
   ];
+
+  // Yumuşak kaydırma (Smooth Scroll) fonksiyonu
+  const handleScroll = (e, href) => {
+    e.preventDefault(); 
+    const element = document.querySelector(href);
+    if (element) {
+      // navbardan 100px boşluk bırakıyoruz
+      const offset = 100;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+    setIsOpen(false); // Eğer mobildeysek tıkladıktan sonra menüyü kapatır
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-6">
@@ -19,7 +37,7 @@ export default function Navbar() {
           animate={{ opacity: 1, x: 0 }}
           className="text-xl font-bold tracking-tighter"
         >
-          MUSTAFA BAVER ÇALIŞ<span className="text-emerald-500">.</span>
+          MUSTAFA BAVER ÇALIŞ<span className="text-rose-800">.</span>
         </motion.div>
 
         {/* Desktop Nav  */}
@@ -31,6 +49,7 @@ export default function Navbar() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
+              onClick={(e) => handleScroll(e, link.href)}
               className="text-sm font-medium text-neutral-400 hover:text-white transition-colors"
             >
               {link.name}
@@ -67,7 +86,7 @@ export default function Navbar() {
             <a
               key={link.name}
               href={link.href}
-              onClick={() => setIsOpen(false)}
+              onClick={(e) => handleScroll(e, link.href)}
               className="text-lg font-medium text-neutral-300 hover:text-white transition-colors"
             >
               {link.name}

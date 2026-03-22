@@ -1,9 +1,21 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ProjectSlider({ projects }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Otomatik kaydırma (Auto-play) efekti
+  useEffect(() => {
+    if (!projects || projects.length === 0) return;
+
+    // Her 6 saniyede slide otomatik değişiyor
+    const intervalId = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % projects.length);
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [projects, currentIndex]);
 
   // Resim Placeholder
   const defaultImage = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=1200";
@@ -92,7 +104,7 @@ export default function ProjectSlider({ projects }) {
               href={currentProject.github_url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-emerald-400 hover:scale-102 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-red-800 hover:scale-102 hover:text-white transition-colors transition-all duration-500"
             >
               Projeyi İncele <ExternalLink className="w-4 h-4" />
             </a>
@@ -115,7 +127,7 @@ export default function ProjectSlider({ projects }) {
         {projects.map((_, i) => (
           <div 
             key={i}
-            className={`h-1 transition-all duration-300 rounded-full ${i === currentIndex ? 'w-8 bg-emerald-500' : 'w-2 bg-white/30'}`}
+            className={`h-1 transition-all duration-300 rounded-full ${i === currentIndex ? 'w-8 bg-red-900' : 'w-2 bg-white/30'}`}
           />
         ))}
       </div>
