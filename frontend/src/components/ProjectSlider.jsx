@@ -64,7 +64,7 @@ export default function ProjectSlider({ projects }) {
       </AnimatePresence>
 
       {/* Proje İçeriği */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16">
+      <div className="absolute top-1/2 -translate-y-1/2 md:top-auto md:translate-y-0 md:bottom-0 left-0 right-0 p-6 md:p-16 md:pb-16">
         <motion.div
           key={`content-${currentIndex}`}
           initial={{ opacity: 0, y: 20 }}
@@ -92,10 +92,10 @@ export default function ProjectSlider({ projects }) {
               );
             })}
           </div>
-          <h2 className="text-4xl md:text-6xl font-bold mb-4 font-serif italic tracking-tight text-white">
+          <h2 className="text-3xl md:text-6xl font-bold mb-2 md:mb-4 font-serif italic tracking-tight text-white">
             {currentProject.title}
           </h2>
-          <p className="text-neutral-300 text-lg mb-8 leading-relaxed">
+          <p className="text-neutral-300 text-sm md:text-lg mb-0 md:mb-8 leading-relaxed pr-16 md:pr-0">
             {currentProject.description}
           </p>
           {/* Github URL'si veritabanında varsa bu butonu gösterir */}
@@ -104,7 +104,7 @@ export default function ProjectSlider({ projects }) {
               href={currentProject.github_url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-red-800 hover:scale-102 hover:text-white transition-colors transition-all duration-500"
+              className="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-red-800 hover:scale-102 hover:text-white transition-colors transition-all duration-500"
             >
               Projeyi İncele <ExternalLink className="w-4 h-4" />
             </a>

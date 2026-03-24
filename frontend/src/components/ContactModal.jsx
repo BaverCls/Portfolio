@@ -28,21 +28,23 @@ export default function ContactModal({ onClose }) {
         <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
           <div>
             <label className="block text-sm font-medium text-neutral-300 mb-1">Adınız</label>
-            <input type="text" placeholder="İsim Soyisim" className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 focus:bg-white/10 transition-colors" />
+            <input type="text" placeholder="İsim Soyisim" className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 focus:bg-white/10 transition-colors" />
           </div>
           <div>
             <label className="block text-sm font-medium text-neutral-300 mb-1">E-posta Adresiniz</label>
-            <input type="email" placeholder="ornek@email.com" className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 focus:bg-white/10 transition-colors" />
+            <input type="email" placeholder="ornek@email.com" className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 focus:bg-white/10 transition-colors" />
           </div>
           <div>
             <label className="block text-sm font-medium text-neutral-300 mb-1">Mesajınız</label>
-            <textarea rows="4" placeholder="Harika bir fikrim var..." className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 focus:bg-white/10 transition-colors resize-none"></textarea>
+            <textarea rows="4" placeholder="Harika bir fikrim var..." className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 focus:bg-white/10 transition-colors resize-none"></textarea>
           </div>
           
           {/* İleride bunu Backend'e bağlayacağız, şimdilik kapatma işlevi verelim */}
-          <button type="submit" onClick={onClose} className="w-full py-4 bg-emerald-500 text-black font-bold rounded-xl hover:bg-emerald-400 hover:scale-[1.02] transition-all mt-4">
-            Mesajı Gönder
-          </button>
+          <div className="flex justify-center mt-6">
+            <button type="submit" onClick={onClose} className="px-10 py-4 bg-neutral-800 text-white font-bold rounded-xl hover:bg-neutral-700 hover:scale-[1.02] transition-all duration-300">
+              Mesajı Gönder
+            </button>
+          </div>
         </form>
       </motion.div>
     </div>
