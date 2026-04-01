@@ -14,7 +14,7 @@ export default function Hero() {
           <span className="text-neutral-500">Fikirden Çözüme</span>
         </h1>
         <p className="text-xl text-neutral-400 max-w-xl leading-relaxed">
-          Mühendislik disipliniyle yazılım geliştiren, yapay zekayı yaratıcı bir araç olarak kullanarak modern ve kullanışlı full-stack projeler inşa eden bir geliştirici.
+          Tasarım ve fonksiyonelliği odağına alan, uçtan uca modern web çözümleri geliştiren bir yazılım geliştirici.
         </p>
       </motion.div>
       

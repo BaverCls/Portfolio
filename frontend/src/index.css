@@ -7,9 +7,18 @@
 }
 
 body {
-  @apply bg-neutral-950 text-neutral-100 antialiased selection:bg-emerald-500/30;
+  @apply bg-neutral-950 text-neutral-100 antialiased selection:bg-[#820000]/40 selection:text-white;
 }
 
 .glass {
   @apply bg-white/5 backdrop-blur-md border border-white/10;
+}
+
+@theme {
+  --animate-flow: flow 4s linear infinite;
+  
+  @keyframes flow {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 200%; }
+  }
 }

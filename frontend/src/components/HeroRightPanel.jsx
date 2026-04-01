@@ -4,7 +4,7 @@ export default function HeroRightPanel() {
   const stats = [
     { num: "2+", label: "Yıl Deneyim" },
     { num: "8+", label: "Proje" },
-    { num: "Full Stack", label: "Development" },
+    { num: "Yazılım", label: "Geliştirme" },
     { num: "İstanbul", label: "TR" }
   ];
  

@@ -32,13 +32,18 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-6">
       <div className="max-w-7xl mx-auto flex justify-between items-center glass rounded-2xl px-6 py-4">
-        <motion.div 
+        <motion.a 
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-xl font-bold tracking-tighter"
+          className="text-xl font-bold tracking-tighter cursor-pointer"
         >
           MUSTAFA BAVER ÇALIŞ<span className="text-rose-800">.</span>
-        </motion.div>
+        </motion.a>
 
         {/* Desktop Nav  */}
         <div className="hidden md:flex items-center gap-8">

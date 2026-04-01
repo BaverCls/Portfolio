@@ -104,7 +104,7 @@ export default function ProjectSlider({ projects }) {
               href={currentProject.github_url}
               target="_blank"
               rel="noreferrer"
-              className="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-red-800 hover:scale-102 hover:text-white transition-colors transition-all duration-500"
+              className="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-[#820000] hover:scale-102 hover:text-white transition-colors transition-all duration-500"
             >
               Projeyi İncele <ExternalLink className="w-4 h-4" />
             </a>

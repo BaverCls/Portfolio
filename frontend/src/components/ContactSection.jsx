@@ -1,20 +1,23 @@
 import ContactSteps from "./ContactSteps";
-import { Mail } from "lucide-react";
 
 export default function ContactSection({ onOpenModal }) {
   return (
     <section id="contact" className="grid md:grid-cols-2 gap-12 items-center pt-20 border-t border-white/10">
-      <div>
-        <h2 className="text-4xl font-bold mb-6 text-white">Bir projeniz mi var?</h2>
-        <p className="text-neutral-400 text-lg mb-8">
-          Birlikte harika şeyler inşa edebiliriz. Hemen iletişime geçin ve projenizi konuşalım.
+      <div className="flex flex-col gap-5">
+        <p className="text-xl italic text-neutral-600 border-l-2 border-[#820000] pl-4 leading-relaxed">
+          "Projelerinizi fikir aşamasından alıp, arayüzden veritabanına kadar her adımda titizlikle çalışarak canlı bir ürüne dönüştürebiliriz."
         </p>
-        <button 
-          onClick={onOpenModal} /* Dışarıdan gelen fonksiyonu tetikler */
-          className="group inline-flex items-center px-8 py-4 bg-rose-800 text-white font-bold rounded-full hover:bg-zinc-200 hover:scale-103 hover:text-black transition-all duration-500"
+        <h2 className="text-3xl font-extrabold text-white leading-snug">
+          Bir proje fikriniz mi var?
+        </h2>
+        <button
+          onClick={onOpenModal}
+          className="relative inline-flex items-center px-6 py-2.5 border border-[#820000] rounded-full font-medium text-sm text-[#A10000] overflow-hidden cursor-pointer group w-fit hover:border-black hover:scale-102 transition-all duration-500"
         >
-          İletişime Geç
-          <Mail className="w-0 h-5 opacity-0 group-hover:w-5 group-hover:ml-2 group-hover:opacity-100 transition-all duration-500" />
+          <span className="absolute inset-0 rounded-full opacity-0 bg-[linear-gradient(135deg,#0a0a0a,#A30000,#0a0a0a,#A30000,#0a0a0a)] bg-[length:200%_200%] group-hover:opacity-100 group-hover:animate-flow transition-opacity duration-500" />
+          <span className="relative z-10 flex items-center gap-2 group-hover:text-white transition-colors duration-500">
+            İletişime geç →
+          </span>
         </button>
       </div>
       

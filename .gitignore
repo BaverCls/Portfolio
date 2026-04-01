@@ -1,5 +1,7 @@
 # Çevre Değişkenleri ve Şifreler 
 .env
+.env.*
+.env.local
 
 # Python Önbellek Dosyaları
 __pycache__/
@@ -14,3 +16,6 @@ env/
 node_modules/
 dist/
 .eslintcache
+
+# İşletim Sistemi Dosyaları
+.DS_Store

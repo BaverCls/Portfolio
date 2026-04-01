@@ -42,9 +42,10 @@ export default function ContactSteps() {
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: i * 0.15 + 0.1, type: "spring", stiffness: 200 }}
-              className="w-8 h-8 rounded-full border border-rose-800 flex items-center justify-center flex-shrink-0 bg-neutral-950 group-hover:bg-rose-950 transition-colors duration-300"
+              className="relative w-8 h-8 rounded-full border border-[#820000] flex items-center justify-center flex-shrink-0 overflow-hidden bg-neutral-950"
             >
-              <span className="text-[10px] font-mono font-bold text-rose-700 group-hover:text-rose-400 transition-colors duration-300">
+              <span className="absolute inset-0 opacity-0 bg-[linear-gradient(135deg,#0a0a0a,#820000,#0a0a0a,#820000,#0a0a0a)] bg-[length:200%_200%] group-hover:opacity-100 group-hover:animate-flow transition-opacity duration-500" />
+              <span className="relative z-10 text-[10px] font-mono font-bold text-[#820000] group-hover:text-white transition-colors duration-300">
                 {step.num}
               </span>
             </motion.div>

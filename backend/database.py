@@ -13,6 +13,10 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL is None:
     raise ValueError("HATA: DATABASE_URL .env dosyasından okunamadı! Lütfen .env dosyanızı kontrol edin.")
 
+# SQLAlchemy yeni sürümlerinde "postgres://" yerine "postgresql://" ister. Sunuculardan gelen adresi otomatik düzeltiyoruz:
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # Veritabanı ile iletişimi sağlayan motor
 engine = create_engine(DATABASE_URL)
 

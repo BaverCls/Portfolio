@@ -49,3 +49,28 @@ def delete_project(db: Session, project_id: int):
         db.delete(db_project) 
         db.commit() 
     return db_project
+
+
+# --- CONTACT MESSAGES CRUD ---
+
+def create_contact_message(db: Session, message: schemas.ContactMessageCreate):
+    db_message = models.ContactMessage(
+        name=message.name,
+        email=message.email,
+        message=message.message
+    )
+    db.add(db_message)
+    db.commit()
+    db.refresh(db_message)
+    return db_message
+
+def get_contact_messages(db: Session):
+    return db.query(models.ContactMessage).order_by(models.ContactMessage.created_at.desc()).all()
+
+# Mesaj Silme İşlemi
+def delete_contact_message(db: Session, message_id: int):
+    db_message = db.query(models.ContactMessage).filter(models.ContactMessage.id == message_id).first()
+    if db_message:
+        db.delete(db_message)
+        db.commit()
+    return db_message
