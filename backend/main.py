@@ -17,8 +17,11 @@ from database import engine, get_db
 # Proje ilk çalıştığında, models.py'deki tablolari veritabanında oluşturur (eğer mevcut değillerse).
 models.Base.metadata.create_all(bind=engine)
 
+# Çalışma ortamını belirliyoruz (Varsayılan: development)
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
 # varsayılan Swagger URL'sini kapatıyoruz (kendi CDN'imizi eklemek için)
-app = FastAPI(title="Portfolio API", docs_url=None)
+app = FastAPI(title="Portfolio API", docs_url=None, openapi_url=None if ENVIRONMENT == "production" else "/openapi.json")
 
 # Frontend URL'sini .env dosyasından alıyoruz. 
 # (Eğer .env'de yoksa varsayılan olarak localhost kullanır)
@@ -86,6 +89,8 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
 # Türkiye'deki jsdelivr (CDN) engellemelerini aşmak için Swagger UI'ı Unpkg üzerinden yüklüyoruz
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
+    if ENVIRONMENT == "production":
+        raise HTTPException(status_code=404, detail="Sayfa bulunamadı")
     return get_swagger_ui_html(
         openapi_url=app.openapi_url,
         title=app.title + " - Swagger UI",
