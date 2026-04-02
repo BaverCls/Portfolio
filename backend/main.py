@@ -27,10 +27,20 @@ app = FastAPI(title="Portfolio API", docs_url=None, openapi_url=None if ENVIRONM
 # (Eğer .env'de yoksa varsayılan olarak localhost kullanır)
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
+origins = [
+    FRONTEND_URL,
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://bavercalis.me",
+    "http://bavercalis.me",
+    "https://www.bavercalis.me",
+    "https://portfolio-hg45j.ondigitalocean.app",
+]
+
 # CORS Ayarları (Güvenlik için)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL, "http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"], # Sadece kullandığımız metotlara izin veriyoruz
     allow_headers=["Authorization", "Content-Type"], # Sadece kullandığımız başlıklara izin veriyoruz
