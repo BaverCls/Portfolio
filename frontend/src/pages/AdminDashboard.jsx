@@ -50,24 +50,58 @@ export default function AdminDashboard() {
     setIsLoading(true);
     setError(null);
 
+    const fetchMessages = async (retries = 3) => { // Mesajlar için 3 deneme, 2 saniye arayla
+      try {
+        const res = await fetch(`${API_URL}/contact/`, { headers: getAuthHeaders() });
+        if (res.status === 401) { 
+          localStorage.removeItem('adminToken'); 
+          navigate('/admin');
+          throw new Error("Oturum süresi dolmuş."); 
+        }
+        if (!res.ok) throw new Error("Ağ hatası"); 
+        const data = await res.json();
+        setMessages(data);
+        setIsLoading(false);
+      } catch (err) {
+        if (err.message === "Oturum süresi dolmuş.") {
+          setError(err.message);
+          setIsLoading(false);
+          return;
+        }
+        if (retries > 0) {
+          console.log("DB uyanıyor, mesajlar tekrar deneniyor...");
+          setTimeout(() => fetchMessages(retries - 1), 3000);
+        } else {
+          setError("Mesajlar yüklenirken sunucuya ulaşılamadı. Backend kapalı veya donmuş olabilir.");
+          setIsLoading(false);
+        }
+      }
+    };
+
+    const fetchProjects = async (retries = 5) => {
+      try {
+        const res = await fetch(`${API_URL}/projects/`, { headers: getAuthHeaders() });
+        if (!res.ok) throw new Error("Ağ hatası"); 
+        const data = await res.json();
+        setProjects(data);
+        setIsLoading(false);
+      } catch (err) {
+        if (retries > 0) {
+          console.log("DB uyanıyor, projeler tekrar deneniyor...");
+          setTimeout(() => fetchProjects(retries - 1), 3000);
+        } else {
+          setError("Projeler yüklenirken sunucuya ulaşılamadı. Backend kapalı veya donmuş olabilir.");
+          setIsLoading(false);
+        }
+      }
+    };
+
     if (activeTab === 'messages') {
-      fetch(`${API_URL}/contact/`, { headers: getAuthHeaders() })
-        .then(res => { 
-          if (res.status === 401) { localStorage.removeItem('adminToken'); navigate('/admin'); throw new Error("Oturum süresi dolmuş."); }
-          if (!res.ok) throw new Error("Ağ hatası"); 
-          return res.json(); 
-        })
-        .then(data => setMessages(data))
-        .catch(err => setError("Mesajlar yüklenirken sunucuya ulaşılamadı. Backend kapalı veya donmuş olabilir."))
-        .finally(() => setIsLoading(false));
+      fetchMessages();
     } else if (activeTab === 'projects') {
-      fetch(`${API_URL}/projects/`, { headers: getAuthHeaders() })
-        .then(res => { if (!res.ok) throw new Error("Ağ hatası"); return res.json(); })
-        .then(data => setProjects(data))
-        .catch(err => setError("Projeler yüklenirken sunucuya ulaşılamadı. Backend kapalı veya donmuş olabilir."))
-        .finally(() => setIsLoading(false));
+      fetchProjects();
     }
-  }, [activeTab, refreshKey]);
+  }, [activeTab, refreshKey, navigate, API_URL]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken'); // Çıkış yaparken bileti yırt

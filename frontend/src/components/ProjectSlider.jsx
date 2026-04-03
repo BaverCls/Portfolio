@@ -22,7 +22,7 @@ export default function ProjectSlider({ projects }) {
 
   // Eğer henüz proje yüklenmediyse veya veritabanı boşsa hata vermemesi için kontrol:
   if (!projects || projects.length === 0) {
-    return <div className="text-neutral-400 text-center py-20">Projeler yükleniyor veya veritabanında proje yok...</div>;
+    return <div className="text-neutral-400 text-center py-20">Projeler yükleniyor...</div>;
   }
 
   const next = () => {

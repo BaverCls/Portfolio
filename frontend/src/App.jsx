@@ -20,11 +20,25 @@ function MainPortfolio() {
   const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
   useEffect(() => {
-    fetch(`${API_URL}/projects/`)
-      .then(response => response.json())
-      .then(data => setProjects(data))
-      .catch(error => console.error("Hata:", error))
-  }, [])
+    // 3 saniyede bir tekrar deneyen akıllı fetch fonksiyonumuz
+    const fetchProjects = async (retries = 5) => {
+      try {
+        const response = await fetch(`${API_URL}/projects/`);
+        if (!response.ok) throw new Error("Veritabanı uyanıyor olabilir...");
+        const data = await response.json();
+        setProjects(data); // Veri başarılı gelirse state'e yaz
+      } catch (error) {
+        if (retries > 0) {
+          console.log(`Sunucu uyku modunda olabilir, 3 saniye sonra tekrar deneniyor... (Kalan deneme: ${retries})`);
+          setTimeout(() => fetchProjects(retries - 1), 3000); // 3 saniye bekle ve tekrar çalıştır
+        } else {
+          console.error("Projeler yüklenemedi. Backend'de bir sorun olabilir:", error);
+        }
+      }
+    };
+
+    fetchProjects();
+  }, [API_URL])
 
   return (
     <div className="min-h-screen overflow-x-hidden">
