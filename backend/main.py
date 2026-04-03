@@ -10,6 +10,7 @@ import os
 import secrets
 import smtplib
 from email.message import EmailMessage
+from sqlalchemy import text
 
 import crud, models, schemas
 from database import engine, get_db
@@ -49,7 +50,14 @@ app.add_middleware(
 # Kök (Ana) Dizin - Tarayıcıdan direkt adrese girildiğinde karşılama mesajı verir
 @app.get("/")
 def read_root():
-    return {"message": "Portfolio API'ye Hoş Geldiniz! API Test arayüzü için /docs adresine gidin."}
+    return {"message": "Portfolio API'ye Hoş Geldiniz!"}
+
+# Sunucuyu ve Veritabanını uyanık tutmak için Cron Endpoint'i
+@app.get("/keep-alive")
+def keep_alive(db: Session = Depends(get_db)):
+    # Veritabanına en hafif sorguyu atarak uyku moduna girmesini engeller
+    db.execute(text("SELECT 1"))
+    return {"status": "OK", "message": "Backend ve Veritabanı uyanık!"}
 
 # --- GÜVENLİK (JWT TOKEN) AYARLARI ---
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
