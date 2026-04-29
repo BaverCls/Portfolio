@@ -19,3 +19,8 @@ dist/
 
 # İşletim Sistemi Dosyaları
 .DS_Store
+
+# Veritabanı ve Yüklemeler
+backend/static/uploads/
+*.db
+*.sqlite3

@@ -1,21 +1,22 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Hammer } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function ProjectSlider({ projects }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Otomatik kaydırma (Auto-play) efekti
   useEffect(() => {
-    if (!projects || projects.length === 0) return;
+    if (!projects || projects.length === 0 || isPaused) return;
 
-    // Her 6 saniyede slide otomatik değişiyor
+    // Her 10 saniyede slide otomatik değişiyor (isPaused false ise)
     const intervalId = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % projects.length);
     }, 10000);
 
     return () => clearInterval(intervalId);
-  }, [projects, currentIndex]);
+  }, [projects, currentIndex, isPaused]);
 
   // Resim Placeholder
   const defaultImage = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=1200";
@@ -39,7 +40,11 @@ export default function ProjectSlider({ projects }) {
   const tags = currentProject.tech_stack ? currentProject.tech_stack.split(',') : [];
 
   return (
-    <div className="relative w-full h-[600px] overflow-hidden rounded-3xl group">
+    <div 
+      className="relative w-full h-[600px] overflow-hidden rounded-3xl group"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
@@ -50,7 +55,9 @@ export default function ProjectSlider({ projects }) {
           className="absolute inset-0"
         >
           <img
-            src={currentProject.image_url || defaultImage}
+            src={currentProject.image_url?.startsWith('/uploads/') 
+              ? `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}${currentProject.image_url}` 
+              : (currentProject.image_url || defaultImage)}
             alt={currentProject.title}
             className="w-full h-full object-cover opacity-30 group-hover:opacity-100 blur-sm scale-105 transition-all duration-700"
             referrerPolicy="no-referrer"
@@ -62,6 +69,18 @@ export default function ProjectSlider({ projects }) {
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent" />
         </motion.div>
       </AnimatePresence>
+
+      {/* Geliştiriliyor Badge i */}
+      {currentProject.is_developing && (
+        <div className="absolute top-6 right-6 z-20">
+          <div className="inline-flex items-center gap-2 bg-amber-500/40 backdrop-blur-md border border-amber-400/20 rounded-full px-4 py-2 shadow-xl shadow-black/40">
+            <Hammer className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+            <span className="text-[10px] uppercase tracking-widest text-amber-500 font-bold">
+              Geliştiriliyor
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Proje İçeriği */}
       <div className="absolute top-1/2 -translate-y-1/2 md:top-auto md:translate-y-0 md:bottom-0 left-0 right-0 p-6 md:p-16 md:pb-16">
@@ -98,15 +117,17 @@ export default function ProjectSlider({ projects }) {
           <p className="text-neutral-300 text-sm md:text-lg mb-0 md:mb-8 leading-relaxed pr-16 md:pr-0">
             {currentProject.description}
           </p>
-          {/* Github URL'si veritabanında varsa bu butonu gösterir */}
-          {currentProject.github_url && (
+          {/* Dinamik Link Butonu */}
+          {((currentProject.link_type === 'github' && currentProject.github_url) || 
+            (currentProject.link_type === 'live' && currentProject.live_url)) && (
             <a 
-              href={currentProject.github_url}
+              href={currentProject.link_type === 'github' ? currentProject.github_url : currentProject.live_url}
               target="_blank"
               rel="noreferrer"
               className="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-[#820000] hover:scale-102 hover:text-white transition-colors transition-all duration-500"
             >
-              Projeyi İncele <ExternalLink className="w-4 h-4" />
+              {currentProject.link_type === 'github' ? 'Dosyayı İncele' : 'Projeyi İncele'} 
+              <ExternalLink className="w-4 h-4" />
             </a>
           )}
         </motion.div>
@@ -123,7 +144,7 @@ export default function ProjectSlider({ projects }) {
       </div>
 
       {/* İlerleme Noktaları */}
-      <div className="absolute top-8 right-8 flex gap-2">
+      <div className="absolute bottom-10 left-8 md:left-16 flex gap-2">
         {projects.map((_, i) => (
           <div 
             key={i}

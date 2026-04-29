@@ -1,5 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks, File, UploadFile
+import shutil
+import uuid
+from supabase import create_client, Client
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -14,9 +18,13 @@ from sqlalchemy import text
 
 import crud, models, schemas
 from database import engine, get_db
+from dotenv import load_dotenv
+
+# .env verilerini zorla yenile
+load_dotenv(override=True)
 
 # Proje ilk çalıştığında, models.py'deki tablolari veritabanında oluşturur (eğer mevcut değillerse).
-models.Base.metadata.create_all(bind=engine)
+#models.Base.metadata.create_all(bind=engine)
 
 # Çalışma ortamını belirliyoruz (Varsayılan: development)
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
@@ -47,6 +55,27 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"], # Sadece kullandığımız başlıklara izin veriyoruz
 )
 
+# --- STATİK DOSYALAR (YEREL VE SUPABASE) ---
+UPLOAD_DIR = "static/uploads"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+# Supabase Storage Ayarları
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+if SUPABASE_URL and SUPABASE_KEY:
+    try:
+        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    except Exception as e:
+        supabase = None
+        print(f"HATA: Supabase bağlantısı kurulamadı: {e}")
+else:
+    supabase = None
+    print("UYARI: SUPABASE_URL veya SUPABASE_SERVICE_ROLE_KEY eksik. Yerel yükleme devre dışı kalabilir.")
+
 # Kök (Ana) Dizin - Tarayıcıdan direkt adrese girildiğinde karşılama mesajı verir
 @app.get("/")
 def read_root():
@@ -58,6 +87,8 @@ def keep_alive(db: Session = Depends(get_db)):
     # Veritabanına en hafif sorguyu atarak uyku moduna girmesini engeller
     db.execute(text("SELECT 1"))
     return {"status": "OK", "message": "Backend ve Veritabanı uyanık!"}
+
+
 
 # --- GÜVENLİK (JWT TOKEN) AYARLARI ---
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
@@ -103,6 +134,42 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     expire = datetime.now(timezone.utc) + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     token = jwt.encode({"sub": form_data.username, "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)
     return {"access_token": token, "token_type": "bearer"}
+
+# --- DOSYA YÜKLEME ENDPOINT'İ (SUPABASE) ---
+@app.post("/upload")
+async def upload_image(file: UploadFile = File(...), admin: str = Depends(get_current_admin)):
+    try:
+        if not supabase:
+            # Eğer Supabase ayarları yoksa geçici olarak yerel klasöre kaydet (Fallback)
+            file_extension = os.path.splitext(file.filename)[1]
+            unique_filename = f"{uuid.uuid4().hex}{file_extension}"
+            file_path = os.path.join(UPLOAD_DIR, unique_filename)
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+            return {"url": f"/uploads/{unique_filename}"}
+        
+        # Supabase'e Yükleme
+        file_extension = os.path.splitext(file.filename)[1]
+        unique_filename = f"{uuid.uuid4().hex}{file_extension}"
+        
+        # Dosyayı oku
+        contents = await file.read()
+        
+        # 'Portfolio' bucket'ına yükle
+        # Not: Supabase panelinde 'Portfolio' adında PUBLIC bir bucket oluşturmuş olmalısın.
+        supabase.storage.from_("Portfolio").upload(
+            path=unique_filename,
+            file=contents,
+            file_options={"content-type": file.content_type}
+        )
+        
+        # Görselin dışarıdan erişilebilir linkini al
+        public_url = supabase.storage.from_("Portfolio").get_public_url(unique_filename)
+        
+        return {"url": public_url}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Görsel yüklenirken hata oluştu: {str(e)}")
 
 # Türkiye'deki jsdelivr (CDN) engellemelerini aşmak için Swagger UI'ı Unpkg üzerinden yüklüyoruz
 @app.get("/docs", include_in_schema=False)

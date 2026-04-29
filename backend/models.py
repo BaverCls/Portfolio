@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from database import Base
 from datetime import datetime
 
@@ -13,7 +13,10 @@ class Project(Base):
     description = Column(Text, nullable=True)
     tech_stack = Column(String(200), nullable=True)
     github_url = Column(String(255), nullable=True)
+    live_url = Column(String(255), nullable=True)
+    link_type = Column(String(20), default="github") # 'github' veya 'live'
     image_url = Column(String(500), nullable=True)
+    is_developing = Column(Boolean, default=False)
 
 
 class ContactMessage(Base):

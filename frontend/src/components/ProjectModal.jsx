@@ -8,15 +8,51 @@ export default function ProjectModal({ onClose, onSuccess, projectToEdit }) {
     description: '', 
     tech_stack: '', 
     github_url: '', 
-    image_url: '' 
+    live_url: '',
+    link_type: 'github',
+    image_url: '',
+    is_developing: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState(null);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const token = localStorage.getItem('adminToken');
+    const formDataUpload = new FormData();
+    formDataUpload.append('file', file);
+
+    const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
+    try {
+      const response = await fetch(`${API_URL}/upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formDataUpload
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.detail || 'Yükleme başarısız.');
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, image_url: data.url }));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -102,19 +138,75 @@ export default function ProjectModal({ onClose, onSuccess, projectToEdit }) {
                 <label className="block text-sm font-medium text-neutral-300 mb-1">Kullanılan Teknolojiler (Virgülle ayırın)</label>
                 <input name="tech_stack" type="text" placeholder="React, FastAPI, Tailwind" value={formData.tech_stack} onChange={handleChange} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-neutral-500 focus:bg-white/10 outline-none transition-colors" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-1">GitHub Linki (Opsiyonel)</label>
-                  <input name="github_url" type="url" placeholder="https://github.com/..." value={formData.github_url} onChange={handleChange} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-neutral-500 focus:bg-white/10 outline-none transition-colors" />
+                  <label className="block text-sm font-medium text-neutral-300 mb-2">Buton Link Tipi</label>
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, link_type: 'github' }))}
+                      className={`flex-1 py-2 px-3 rounded-lg border text-xs transition-all flex items-center justify-center gap-2 ${
+                        formData.link_type === 'github' 
+                          ? 'bg-neutral-800 border-neutral-500 text-white' 
+                          : 'bg-white/5 border-white/10 text-neutral-400 hover:bg-white/10'
+                      }`}
+                    >
+                      GitHub
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, link_type: 'live' }))}
+                      className={`flex-1 py-2 px-3 rounded-lg border text-xs transition-all flex items-center justify-center gap-2 ${
+                        formData.link_type === 'live' 
+                          ? 'bg-neutral-800 border-neutral-500 text-white' 
+                          : 'bg-white/5 border-white/10 text-neutral-400 hover:bg-white/10'
+                      }`}
+                    >
+                      Canlı Proje
+                    </button>
+                  </div>
+
+                  {formData.link_type === 'github' ? (
+                    <input name="github_url" type="url" placeholder="GitHub Linki..." value={formData.github_url || ''} onChange={handleChange} className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white focus:border-neutral-500 focus:bg-white/10 outline-none transition-colors text-sm" />
+                  ) : (
+                    <input name="live_url" type="url" placeholder="Canlı Proje Linki..." value={formData.live_url || ''} onChange={handleChange} className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white focus:border-neutral-500 focus:bg-white/10 outline-none transition-colors text-sm" />
+                  )}
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-1">Kapak Fotoğrafı URL (Opsiyonel)</label>
-                  <input name="image_url" type="url" placeholder="https://..." value={formData.image_url} onChange={handleChange} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-neutral-500 focus:bg-white/10 outline-none transition-colors" />
+                  <label className="block text-sm font-medium text-neutral-300 mb-2">Kapak Fotoğrafı</label>
+                  <div className="flex gap-2">
+                    <input 
+                      name="image_url" 
+                      type="text" 
+                      placeholder="Görsel URL..." 
+                      value={formData.image_url || ''} 
+                      onChange={handleChange} 
+                      className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white focus:border-neutral-500 focus:bg-white/10 outline-none transition-colors text-sm" 
+                    />
+                    <label className="px-3 py-2.5 bg-neutral-800 border border-white/10 rounded-xl text-white cursor-pointer hover:bg-neutral-700 transition-colors flex items-center justify-center whitespace-nowrap text-xs font-bold">
+                      {isUploading ? '...' : 'Seç'}
+                      <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*" disabled={isUploading} />
+                    </label>
+                  </div>
                 </div>
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-neutral-300 mb-1">Proje Açıklaması</label>
                 <textarea name="description" rows="4" value={formData.description} onChange={handleChange} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-neutral-500 focus:bg-white/10 outline-none transition-colors resize-none"></textarea>
+              </div>
+
+              <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-4 rounded-xl cursor-pointer hover:bg-white/10 transition-colors" onClick={() => setFormData(prev => ({...prev, is_developing: !prev.is_developing}))}>
+                <input 
+                  name="is_developing" 
+                  type="checkbox" 
+                  checked={formData.is_developing} 
+                  onChange={handleChange}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-5 h-5 rounded border-white/10 bg-white/5 text-[#820000] focus:ring-[#820000] transition-colors cursor-pointer" 
+                />
+                <label className="text-sm font-medium text-neutral-300 cursor-pointer">Bu proje hala geliştirme aşamasında (Geliştiriliyor ibaresini göster)</label>
               </div>
               
               {error && <div className="flex items-center gap-2 text-red-400 bg-red-500/10 p-3 rounded-lg text-sm"><AlertTriangle className="w-4 h-4 flex-shrink-0" /><span>{error}</span></div>}

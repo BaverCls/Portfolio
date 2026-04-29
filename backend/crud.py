@@ -15,7 +15,10 @@ def create_project(db: Session, project: schemas.ProjectCreate):
         description=project.description,
         tech_stack=project.tech_stack,
         github_url=project.github_url,
-        image_url=project.image_url
+        live_url=project.live_url,
+        link_type=project.link_type,
+        image_url=project.image_url,
+        is_developing=project.is_developing
     )
     
     db.add(db_project)        
@@ -37,7 +40,10 @@ def update_project(db: Session, project_id: int, project: schemas.ProjectCreate)
         db_project.description = project.description
         db_project.tech_stack = project.tech_stack
         db_project.github_url = project.github_url
+        db_project.live_url = project.live_url
+        db_project.link_type = project.link_type
         db_project.image_url = project.image_url
+        db_project.is_developing = project.is_developing
         db.commit() 
         db.refresh(db_project)
     return db_project
