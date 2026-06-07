@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import { LogOut, Mail, FolderKanban, Trash2, Plus, Pencil } from 'lucide-react';
 import ProjectModal from '../components/ProjectModal';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../config/api';
+
+const MotionDiv = motion.div;
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('messages'); // 'messages' veya 'projects'
@@ -15,8 +18,6 @@ export default function AdminDashboard() {
   const [refreshKey, setRefreshKey] = useState(0); // Proje eklendiğinde listeyi tetiklemek için
   const navigate = useNavigate();
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-
   // Backend'e yollanacak güvenlik bileti (Token) paketi
   const getAuthHeaders = () => {
     const token = localStorage.getItem('adminToken');
@@ -27,7 +28,7 @@ export default function AdminDashboard() {
   const handleDeleteMessage = async (id) => {
     if (!window.confirm("Bu mesajı kalıcı olarak silmek istediğinize emin misiniz?")) return;
     try {
-      const res = await fetch(`${API_URL}/contact/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+      const res = await fetch(apiUrl(`/contact/${id}`), { method: 'DELETE', headers: getAuthHeaders() });
       if (res.ok) setMessages(prev => prev.filter(m => m.id !== id));
     } catch (err) {
       console.error("Mesaj silinirken hata oluştu:", err);
@@ -38,7 +39,7 @@ export default function AdminDashboard() {
   const handleDeleteProject = async (id) => {
     if (!window.confirm("Bu projeyi kalıcı olarak silmek istediğinize emin misiniz?")) return;
     try {
-      const res = await fetch(`${API_URL}/projects/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+      const res = await fetch(apiUrl(`/projects/${id}`), { method: 'DELETE', headers: getAuthHeaders() });
       if (res.ok) setProjects(prev => prev.filter(p => p.id !== id));
     } catch (err) {
       console.error("Proje silinirken hata oluştu:", err);
@@ -52,7 +53,7 @@ export default function AdminDashboard() {
 
     const fetchMessages = async (retries = 3) => { // Mesajlar için 3 deneme, 2 saniye arayla
       try {
-        const res = await fetch(`${API_URL}/contact/`, { headers: getAuthHeaders() });
+        const res = await fetch(apiUrl('/contact/'), { headers: getAuthHeaders() });
         if (res.status === 401) { 
           localStorage.removeItem('adminToken'); 
           navigate('/admin');
@@ -80,12 +81,12 @@ export default function AdminDashboard() {
 
     const fetchProjects = async (retries = 5) => {
       try {
-        const res = await fetch(`${API_URL}/projects/`, { headers: getAuthHeaders() });
+        const res = await fetch(apiUrl('/projects/'), { headers: getAuthHeaders() });
         if (!res.ok) throw new Error("Ağ hatası"); 
         const data = await res.json();
         setProjects(data);
         setIsLoading(false);
-      } catch (err) {
+      } catch {
         if (retries > 0) {
           console.log("DB uyanıyor, projeler tekrar deneniyor...");
           setTimeout(() => fetchProjects(retries - 1), 3000);
@@ -101,7 +102,7 @@ export default function AdminDashboard() {
     } else if (activeTab === 'projects') {
       fetchProjects();
     }
-  }, [activeTab, refreshKey, navigate, API_URL]);
+  }, [activeTab, refreshKey, navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken'); // Çıkış yaparken bileti yırt
@@ -141,7 +142,7 @@ export default function AdminDashboard() {
 
       {/* Ana İçerik Alanı */}
       <div className="flex-1 p-10 relative overflow-y-auto">
-        <motion.div 
+        <MotionDiv 
           key={activeTab} // Sekme değişince animasyon baştan oynar
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }}
@@ -237,7 +238,7 @@ export default function AdminDashboard() {
               ))}
             </div>
           )}
-        </motion.div>
+        </MotionDiv>
       </div>
 
       {/* Proje Ekleme Modalı */}

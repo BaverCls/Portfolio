@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
 import { X, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
+import { apiUrl } from '../config/api';
+
+const MotionDiv = motion.div;
 
 export default function ProjectModal({ onClose, onSuccess, projectToEdit }) {
   const [formData, setFormData] = useState(projectToEdit || { 
@@ -32,10 +35,8 @@ export default function ProjectModal({ onClose, onSuccess, projectToEdit }) {
     const formDataUpload = new FormData();
     formDataUpload.append('file', file);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-
     try {
-      const response = await fetch(`${API_URL}/upload`, {
+      const response = await fetch(apiUrl('/upload'), {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formDataUpload
@@ -64,9 +65,8 @@ export default function ProjectModal({ onClose, onSuccess, projectToEdit }) {
 
     const token = localStorage.getItem('adminToken'); // Backend'e göndermek için bileti alıyoruz
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
     // Eğer projectToEdit varsa Güncelleme (PUT) url'si, yoksa Yeni Ekleme (POST) url'si
-    const url = projectToEdit ? `${API_URL}/projects/${projectToEdit.id}` : `${API_URL}/projects/`;
+    const url = projectToEdit ? apiUrl(`/projects/${projectToEdit.id}`) : apiUrl('/projects/');
     const method = projectToEdit ? 'PUT' : 'POST';
 
     try {
@@ -99,7 +99,7 @@ export default function ProjectModal({ onClose, onSuccess, projectToEdit }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60">
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -114,9 +114,9 @@ export default function ProjectModal({ onClose, onSuccess, projectToEdit }) {
 
         {isSuccess ? (
           <div className="text-center py-8">
-            <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }}>
+            <MotionDiv initial={{ scale: 0.5 }} animate={{ scale: 1 }}>
               <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-            </motion.div>
+            </MotionDiv>
             <h3 className="text-2xl font-bold text-white mb-2">Başarılı!</h3>
             <p className="text-neutral-300">Proje başarıyla kaydedildi.</p>
           </div>
@@ -201,7 +201,7 @@ export default function ProjectModal({ onClose, onSuccess, projectToEdit }) {
                 <input 
                   name="is_developing" 
                   type="checkbox" 
-                  checked={formData.is_developing} 
+                  checked={!!formData.is_developing} 
                   onChange={handleChange}
                   onClick={(e) => e.stopPropagation()}
                   className="w-5 h-5 rounded border-white/10 bg-white/5 text-[#820000] focus:ring-[#820000] transition-colors cursor-pointer" 
@@ -219,7 +219,7 @@ export default function ProjectModal({ onClose, onSuccess, projectToEdit }) {
             </form>
           </>
         )}
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 }

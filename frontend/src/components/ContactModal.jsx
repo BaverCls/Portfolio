@@ -1,12 +1,26 @@
 import { motion } from 'framer-motion';
-import { X, CheckCircle, AlertTriangle } from 'lucide-react';
-import { useState } from 'react';
+import { X, CheckCircle, AlertTriangle, Send, Mail, User, MessageSquare, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { apiUrl } from '../config/api';
+
+const MotionDiv = motion.div;
 
 export default function ContactModal({ onClose }) {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,13 +34,11 @@ export default function ContactModal({ onClose }) {
     setIsSubmitting(true);
     setError(null);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-    // Backend yanıt vermezse sonsuza kadar donmasını engellemek için 15 saniyelik zaman aşımı ekliyoruz
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
-      const response = await fetch(`${API_URL}/contact/`, {
+      const response = await fetch(apiUrl('/contact/'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -40,7 +52,6 @@ export default function ContactModal({ onClose }) {
       }
 
       setIsSuccess(true);
-      // 3 saniye sonra modalı otomatik kapat
       setTimeout(() => {
         onClose();
       }, 3000);
@@ -56,75 +67,155 @@ export default function ContactModal({ onClose }) {
     }
   };
 
+  const inputClassName = "w-full px-4 py-3.5 bg-white/[0.03] border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:border-red-500/45 focus:bg-white/[0.055] transition-all";
+
   return (
-    // Arka planı hafif karartan tam ekran kapsayıcı (bulanıklaştırmayı kapattım, çok kasıyodu)
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+    <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/70 p-4">
+      <MotionDiv
+        initial={{ opacity: 0, scale: 0.94, y: 18 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="relative w-full max-w-lg p-8 md:p-12 glass rounded-3xl shadow-2xl bg-neutral-950/90"
+        exit={{ opacity: 0, scale: 0.94, y: 18 }}
+        transition={{ duration: 0.22, ease: 'easeOut' }}
+        className="relative my-6 w-full max-w-lg"
       >
-        {/* X butonu */}
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 text-neutral-400 hover:text-white hover:bg-white/10 rounded-full transition-all"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <div className="relative overflow-hidden rounded-2xl bg-white/10 p-px shadow-2xl shadow-black/50">
+          <div
+            className="pointer-events-none absolute inset-0 animate-[spin_7s_linear_infinite] rounded-2xl bg-[conic-gradient(from_0deg,transparent_0deg,transparent_70%,rgba(163,0,0,0.85)_80%,rgba(95,0,0,0.42)_87%,transparent_95%)] p-px"
+            style={{
+              WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude'
+            }}
+          />
 
-        {isSuccess ? (
-          <div className="text-center py-8">
-            <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }}>
-              <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-            </motion.div>
-            <h3 className="text-2xl font-bold text-white mb-2">Teşekkürler!</h3>
-            <p className="text-neutral-300">Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağım.</p>
-          </div>
-        ) : (
-          <>
-            <h3 className="text-3xl font-bold text-white mb-2">İletişime Geç</h3>
-            <p className="text-neutral-400 mb-8">
-              Her türlü soru, öneri veya iş birliği teklifi için bana buradan ulaşabilirsin. Genellikle 24 saat içinde dönüş yapıyorum.
-            </p>
+          <div className="relative overflow-hidden rounded-[15px] bg-[#101010] backdrop-blur-xl">
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-neutral-300 mb-1">Adınız</label>
-                <input id="name" name="name" type="text" placeholder="İsim Soyisim" required value={formData.name} onChange={handleChange} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 focus:bg-white/10 transition-colors" />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-1">E-posta Adresiniz</label>
-                <input id="email" name="email" type="email" placeholder="ornek@email.com" required value={formData.email} onChange={handleChange} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 focus:bg-white/10 transition-colors" />
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-neutral-300 mb-1">Mesajınız</label>
-                <textarea id="message" name="message" rows="4" placeholder="Harika bir fikrim var..." required value={formData.message} onChange={handleChange} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 focus:bg-white/10 transition-colors resize-none"></textarea>
-              </div>
-              
-              {error && (
-                <div className="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-lg text-sm">
-                  <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                  <span>{error}</span>
+          <button
+            onClick={onClose}
+            className="absolute right-5 top-5 z-20 flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-white/42 transition-all hover:bg-white/[0.08] hover:text-white"
+            aria-label="Modalı kapat"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
+          {isSuccess ? (
+            <div className="px-8 py-12 text-center">
+              <MotionDiv initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10">
+                  <CheckCircle className="h-8 w-8 text-emerald-400" />
                 </div>
-              )}
+              </MotionDiv>
+              <h3 className="mb-2 text-2xl font-bold text-white">Teşekkürler!</h3>
+              <p className="mx-auto max-w-sm text-sm leading-relaxed text-white/55">
+                Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağım.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="relative px-6 pb-6 pt-8 sm:px-8">
+                <div className="flex items-start gap-4 pr-10">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-500/20 bg-gradient-to-br from-red-500/18 to-red-700/8">
+                    <Mail className="h-5 w-5 text-red-300" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">İletişime Geç</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-white/48">
+                      Her türlü soru, öneri veya proje fikriniz için bana buradan ulaşabilirsin.
+                    </p>
+                  </div>
+                </div>
 
-              <div className="flex justify-center pt-4">
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <div className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-xs font-medium text-emerald-300">Çevrimiçi</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">
+                    <Clock className="h-3 w-3 text-white/38" />
+                    <span className="text-xs text-white/40">~24 saat içinde dönüş</span>
+                  </div>
+                </div>
+              </div>
+
+              <form className="space-y-5 px-6 pb-6 sm:px-8" onSubmit={handleSubmit}>
+                <div className="space-y-2">
+                  <label htmlFor="name" className="flex items-center gap-2 text-sm font-medium text-white/68">
+                    <User className="h-3.5 w-3.5 text-red-300/75" />
+                    Adınız
+                  </label>
+                  <div className="group relative">
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder="İsim Soyisim"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className={inputClassName}
+                    />
+                    <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-red-500/0 via-transparent to-red-500/0 transition-all group-focus-within:from-red-500/[0.035] group-focus-within:to-red-500/[0.035]" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="email" className="flex items-center gap-2 text-sm font-medium text-white/68">
+                    <Mail className="h-3.5 w-3.5 text-red-300/75" />
+                    E-posta Adresiniz
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="ornek@email.com"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={inputClassName}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="message" className="flex items-center gap-2 text-sm font-medium text-white/68">
+                    <MessageSquare className="h-3.5 w-3.5 text-red-300/75" />
+                    Mesajınız
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows="4"
+                    placeholder="Harika bir fikrim var..."
+                    required
+                    value={formData.message}
+                    onChange={handleChange}
+                    className={`${inputClassName} resize-none`}
+                  />
+                </div>
+
+                {error && (
+                  <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-300">
+                    <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="relative inline-flex items-center justify-center px-10 py-4 bg-transparent border border-[#820000] rounded-xl font-bold text-[#A10000] overflow-hidden cursor-pointer group w-full hover:border-black hover:scale-[1.02] transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative mt-2 w-full disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <span className="absolute inset-0 opacity-0 bg-[linear-gradient(135deg,#0a0a0a,#A30000,#0a0a0a,#A30000,#0a0a0a)] bg-[length:200%_200%] group-hover:opacity-100 group-hover:animate-flow transition-opacity duration-500" />
-                  <span className="relative z-10 group-hover:text-white transition-colors duration-500">
+                  <span className="absolute inset-0 rounded-xl bg-red-700/45 opacity-0 blur-xl transition-opacity group-hover:opacity-45" />
+                  <span className="relative flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#8f0000] to-[#610000] px-6 py-4 font-semibold text-white transition-all duration-300 group-hover:from-[#A30000] group-hover:to-[#780000]">
+                    <Send className="h-4 w-4" />
                     {isSubmitting ? 'Gönderiliyor...' : 'Mesajı Gönder'}
                   </span>
                 </button>
-              </div>
-            </form>
-          </>
-        )}
-      </motion.div>
+              </form>
+            </>
+          )}
+          </div>
+        </div>
+      </MotionDiv>
     </div>
   );
 }

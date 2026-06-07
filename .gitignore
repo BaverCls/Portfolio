@@ -24,3 +24,7 @@ dist/
 backend/static/uploads/
 *.db
 *.sqlite3
+
+*.log
+logs/
+backend/*.log

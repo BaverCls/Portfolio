@@ -69,9 +69,9 @@ SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 if SUPABASE_URL and SUPABASE_KEY:
     try:
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-    except Exception as e:
+    except Exception:
         supabase = None
-        print(f"HATA: Supabase bağlantısı kurulamadı: {e}")
+        print("HATA: Supabase bağlantısı kurulamadı.")
 else:
     supabase = None
     print("UYARI: SUPABASE_URL veya SUPABASE_SERVICE_ROLE_KEY eksik. Yerel yükleme devre dışı kalabilir.")

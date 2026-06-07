@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../config/api';
+
+const MotionDiv = motion.div;
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -15,13 +18,12 @@ export default function AdminLogin() {
     setIsLoading(true);
     setError('');
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
     const formData = new URLSearchParams();
     formData.append('username', username);
     formData.append('password', password);
 
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await fetch(apiUrl('/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
@@ -46,7 +48,7 @@ export default function AdminLogin() {
         Siteye Dön
       </a>
 
-      <motion.div 
+      <MotionDiv 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md p-8 glass rounded-3xl shadow-2xl bg-neutral-900/50 border border-white/10"
@@ -91,7 +93,7 @@ export default function AdminLogin() {
             {isLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
           </button>
         </form>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -12,6 +11,14 @@ body {
 
 .glass {
   @apply bg-white/5 backdrop-blur-md border border-white/10;
+}
+
+.project-slider-title {
+  font-family: "Playfair Display", Georgia, serif !important;
+  font-style: italic;
+  font-weight: 400 !important;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
 }
 
 @theme {
